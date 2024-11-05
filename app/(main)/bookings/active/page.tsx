@@ -1,8 +1,8 @@
-import TableWithSearch from "@/components/bookings/active/page"
+import ActiveTable from "@/components/bookings/active/page";
 
 const ActiveBookings = () => {
     return ( 
-        <TableWithSearch />
+        <ActiveTable />
     );
 }
  

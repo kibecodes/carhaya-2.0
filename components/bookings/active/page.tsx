@@ -1,42 +1,21 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react";
-import { DocumentIcon } from "@heroicons/react/24/solid";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import {
   Card,
   Input,
-  Checkbox,
   CardHeader,
-  IconButton,
-  Typography,
   Spinner,
+  Typography,
 } from "@material-tailwind/react";
 import { Booking } from "@/types";
 import axios from "axios"; 
 import { Alert } from "@material-tailwind/react";
+import DataTable from "../components/data-table";
 
-const TABLE_HEAD = [
-  {
-    head: "Agency",
-    icon: <Checkbox crossOrigin={undefined} />,
-  },
-  {
-    head: "Plate No.",
-  },
-  {
-    head: "Cost Per Day",
-  },
-  {
-    head: "Status",
-  },
-  {
-    head: "Total Cost",
-  },
-];
  
-const TableWithSearch = () => {
+const ActiveTable = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -45,7 +24,7 @@ const TableWithSearch = () => {
   const fetchActiveBookings = () => {
     try {
       startTransition(async() => {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIxNDZiZDIxOS1mMDk1LTQ4NmItOWVkMy1kMzczM2UxMzEwMzQiLCJlbWFpbCI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsInN1YiI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsImp0aSI6ImY0MDY0MTczLWE4YmQtNGZmYS05MGE2LTBlM2I2ZDk1NGYzMSIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTczMDc0ODE2MSwiZXhwIjoxNzMwNzQ5OTYxLCJpYXQiOjE3MzA3NDgxNjF9.jz-s4s7sXxm_ItTQz7kXBqmC70VnY-DG77tEVfNAh30"
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIxNDZiZDIxOS1mMDk1LTQ4NmItOWVkMy1kMzczM2UxMzEwMzQiLCJlbWFpbCI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsInN1YiI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsImp0aSI6IjFhYTQyOTk0LWFkMzUtNGI5MC1iNmZjLTZkMTM0ODNhM2JiZCIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTczMDgwNTExNCwiZXhwIjoxNzMwODA2OTE0LCJpYXQiOjE3MzA4MDUxMTR9.nBxfw77OAbqBRBGH6uy9LSCwda28UZR7SgmtsIVfUUw"
         const response = await axios.get('https://carhire.transfa.org/api/bookings/active',
           {
             headers: {
@@ -122,6 +101,7 @@ const TableWithSearch = () => {
         shadow={false}
         className="mb-2 rounded-none p-2"
       >
+        <Typography variant="h4">Active Bookings</Typography>
         <div className="w-full md:w-96">
           <Input
             label="Search Booking"
@@ -130,96 +110,9 @@ const TableWithSearch = () => {
           />
         </div>
       </CardHeader>
-      <table className="w-full min-w-max table-auto text-left">
-        <thead>
-          <tr>
-            {TABLE_HEAD.map(({ head, icon }) => (
-              <th key={head} className="border-b border-gray-300 p-4">
-                <div className="flex items-center gap-1">
-                  {icon}
-                  <Typography
-                    color="blue-gray"
-                    variant="small"
-                    className="!font-bold"
-                  >
-                    {head}
-                  </Typography>
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((booking) => {
-              const classes = "p-4 border-b border-gray-300";
- 
-              return (
-                <tr key={booking.id}>
-                  <td className={classes}>
-                    <div className="flex items-center gap-1">
-                      <Checkbox crossOrigin={undefined}/>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-bold"
-                      >
-                        {booking.agencyName}
-                      </Typography>
-                    </div>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      className="font-normal text-gray-600"
-                    >
-                      {booking.vehiclePlateNumber}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      className="font-normal text-gray-600"
-                    >
-                      {booking.unitCostPerDay}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      className="font-normal text-gray-600"
-                    >
-                      {booking.paymentStatus ? "Paid" : "Pending"}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      className="font-normal text-gray-600"
-                    >
-                      {booking.totalCost}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <div className="flex items-center gap-2">
-                      <IconButton variant="text" size="sm">
-                        <DocumentIcon className="h-4 w-4 text-gray-900" />
-                      </IconButton>
-                      <IconButton variant="text" size="sm">
-                        <ArrowDownTrayIcon
-                          strokeWidth={3}
-                          className="h-4 w-4 text-gray-900"
-                        />
-                      </IconButton>
-                    </div>
-                  </td>
-                </tr>
-              );
-            },
-          )}
-        </tbody>
-      </table>
+      <DataTable bookings={data} showActions={true} showAgency={true} />
     </Card>
   );
 }
 
-export default TableWithSearch;
+export default ActiveTable;
