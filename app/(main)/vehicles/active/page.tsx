@@ -1,7 +1,8 @@
-import TableWithSearch from "@/components/vehicles/active/page";
+import ActiveTable from "@/components/vehicles/active/page";
 
 const ActiveVehicles = () => {
-    return ( <TableWithSearch /> );
+    return ( <ActiveTable /> );
+
 }
  
 export default ActiveVehicles;

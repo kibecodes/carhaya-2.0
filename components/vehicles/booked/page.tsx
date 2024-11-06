@@ -15,17 +15,17 @@ import { Alert } from "@material-tailwind/react";
 import DataTable from "../components/data-table";
 
  
-const ActiveTable = () => {
+const BookedTable = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState<Vehicle[]>([]);
 
-  const fetchActiveVehicles = () => {
+  const fetchBookedVehicles = () => {
     try {
       startTransition(async() => {
         const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIxNDZiZDIxOS1mMDk1LTQ4NmItOWVkMy1kMzczM2UxMzEwMzQiLCJlbWFpbCI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsInN1YiI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsImp0aSI6ImY0MDY0MTczLWE4YmQtNGZmYS05MGE2LTBlM2I2ZDk1NGYzMSIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTczMDc0ODE2MSwiZXhwIjoxNzMwNzQ5OTYxLCJpYXQiOjE3MzA3NDgxNjF9.jz-s4s7sXxm_ItTQz7kXBqmC70VnY-DG77tEVfNAh30"
-        const response = await axios.get('https://carhire.transfa.org/api/vehicles/active',
+        const response = await axios.get('https://carhire.transfa.org/api/vehicles/booked',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -45,7 +45,6 @@ const ActiveTable = () => {
        if (axios.isAxiosError(error)) {
                 if (error.response) {
                     if (error.response.status === 401) {
-                        // Redirect to login page to get a new accessToken
                         console.error('Unauthorized (401) error. Redirecting to login.');
                         alert('Session expired. Redirecting to login page.');
                     } else {
@@ -53,16 +52,13 @@ const ActiveTable = () => {
                         alert(`Fetching failed: ${error.response.data.message}`);
                     }
                 } else if (error.request) {
-                    // Request was made but no response received
                     console.error('No response received:', error.request);
                     alert('Fetching failed: No response from server. Please try again later.');
                 } else {
-                    // Error setting up the request
                     console.error('Error in setup:', error.message);
                     alert(`Fetching failed: ${error.message}`);
                 }
             } else {
-                // Generic error (non-Axios)
                 console.error('Unexpected error:', error);
                 alert('Fetching failed: An unexpected error occurred. Please try again.');
             }
@@ -71,7 +67,7 @@ const ActiveTable = () => {
   }
 
   useEffect(() => {
-    fetchActiveVehicles();
+    fetchBookedVehicles();
   }, []);
 
   useEffect(() => {
@@ -101,7 +97,7 @@ const ActiveTable = () => {
         shadow={false}
         className="mb-2 rounded-none p-2"
       >
-        <Typography variant="h4">Active Vehicles</Typography>
+        <Typography variant="h4">Booked Vehicles</Typography>
         <div className="w-full md:w-96">
           <Input
             label="Search Booking"
@@ -115,4 +111,4 @@ const ActiveTable = () => {
   );
 }
 
-export default ActiveTable;
+export default BookedTable;
