@@ -13,6 +13,8 @@ import { Vehicle } from "@/types";
 import axios from "axios"; 
 import { Alert } from "@material-tailwind/react";
 import DataTable from "../components/data-table";
+import { getSession } from "next-auth/react";
+import debounce from "debounce";
 
  
 const DeletedTable = () => {
@@ -20,26 +22,33 @@ const DeletedTable = () => {
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState<Vehicle[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const fetchDeletedVehicles = () => {
     try {
       startTransition(async() => {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIxNDZiZDIxOS1mMDk1LTQ4NmItOWVkMy1kMzczM2UxMzEwMzQiLCJlbWFpbCI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsInN1YiI6ImpvbmF0aGFuQGdtYWlsLmNvbSIsImp0aSI6ImY0MDY0MTczLWE4YmQtNGZmYS05MGE2LTBlM2I2ZDk1NGYzMSIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTczMDc0ODE2MSwiZXhwIjoxNzMwNzQ5OTYxLCJpYXQiOjE3MzA3NDgxNjF9.jz-s4s7sXxm_ItTQz7kXBqmC70VnY-DG77tEVfNAh30"
-        const response = await axios.get('https://carhire.transfa.org/api/vehicles/deleted',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
+        const sessionToken = await getSession();
+        const token = sessionToken?.user.accessToken;
+
+        if (token) {
+          const response = await axios.get('https://carhire.transfa.org/api/vehicles/deleted',
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
             }
+          );
+    
+          if (response.status === 200) {  
+            setSuccess("Vehicles updated successfully!");
+            setData(response.data);
+          } else {
+            setError("Vehicles update failed! Try again later.")
           }
-        );
-  
-        if (response.status === 200) {  
-          setSuccess("Vehicles updated successfully!");
-          setData(response.data);
-        } else {
-          setError("Vehicles update failed! Try again later.")
         }
+        return;
       });
     } catch (error) {
        if (axios.isAxiosError(error)) {
@@ -67,7 +76,12 @@ const DeletedTable = () => {
   }
 
   useEffect(() => {
-    fetchDeletedVehicles();
+    setIsMounted(true); 
+    fetchDeletedVehicles(); 
+
+    return () => {
+      setIsMounted(false); 
+    };
   }, []);
 
   useEffect(() => {
@@ -81,33 +95,56 @@ const DeletedTable = () => {
     }
   }, [error, success]);
 
+  const debouncedSearch = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 100);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+  }
+
+  const filteredDeletedVehicles = data.filter((vehicle) => 
+    vehicle.vehiclePlateNumber.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
   return (
-    <Card className="h-full w-full overflow-scroll">
-      {isPending && (
-        <Spinner />
-      )}
-      {success && (
-        <Alert color="green">{success}</Alert>
-      )}
-      {error && (
-        <Alert color="red">{error}</Alert>
-      )}
-      <CardHeader
-        floated={false}
-        shadow={false}
-        className="mb-2 rounded-none p-2"
-      >
-        <Typography variant="h4">Deleted Vehicles</Typography>
-        <div className="w-full md:w-96">
-          <Input
-            label="Search Booking"
-            icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-            crossOrigin={undefined}
-          />
+    <>
+      {!isMounted ? (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+          <Spinner />
         </div>
-      </CardHeader>
-      <DataTable vehicles={data} showActions={true} />
-    </Card>
+      ) : (
+        <Card className="h-full w-full overflow-scroll">
+          {isPending && (
+            <Spinner />
+          )}
+          {success && (
+            <Alert color="green">{success}</Alert>
+          )}
+          {error && (
+            <Alert color="red">{error}</Alert>
+          )}
+          <CardHeader
+            floated={false}
+            shadow={false}
+            className="mb-2 rounded-none p-2"
+          >
+            <Typography variant="h4">Deleted Vehicles</Typography>
+            <div className="w-full md:w-96">
+              <Input
+                label="Search by Plate No."
+                icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                crossOrigin={undefined}
+              />
+            </div>
+          </CardHeader>
+          <DataTable vehicles={filteredDeletedVehicles} showActions={true} basePath="deleted"/>
+        </Card>
+      )}
+    </>
   );
 }
 

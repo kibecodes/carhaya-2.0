@@ -19,7 +19,7 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ vehicle }) => {
       >
         <Link
           href={{
-            pathname: `/upload/fleet/${vehicle.id}`,
+            pathname: `/upload/vehicle/${vehicle.id}`,
             query: {
               id: vehicle.id,
             }

@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useTransition, useEffect } from "react";
 import type { Vehicle } from "@/types";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -341,9 +343,8 @@ const UpdateVehicle = () => {
                 <Alert color="green">{success}</Alert>
             )}
             <Card>
-                <CardHeader>
+                <CardHeader color="orange" className="p-2">
                     <h2 className="text-white text-lg">Update Vehicle</h2>
-                    <h3 className="text-gray-400 text-sm">Make changes to vehicle details where necessary.</h3>
                 </CardHeader>
                 <CardBody>
                     <form onSubmit={form.handleSubmit(onSubmitUpdate)} className="space-y-5">

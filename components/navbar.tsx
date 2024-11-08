@@ -7,11 +7,26 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon,ArrowRightEndOnRectangleIcon, SunIcon } from "@heroicons/react/24/outline";
- 
+import { signOut } from "next-auth/react" 
+
 const NavList = () => {
+  const handleLogout = async() => {
+        
+    await signOut({
+        redirectTo: "/login"
+    });
+    
+    localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
+
+  }
+
   return (
     <ul className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-6">
-      <ArrowRightEndOnRectangleIcon className="h-5 w-5 cursor-pointer" />
+      <ArrowRightEndOnRectangleIcon 
+        className="h-5 w-5 cursor-pointer" 
+        onClick={handleLogout}
+      />
       <SunIcon className="h-5 w-5 cursor-pointer" />
     </ul>
   );

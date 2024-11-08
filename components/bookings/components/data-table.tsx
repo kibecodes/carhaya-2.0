@@ -72,13 +72,13 @@ const DataTable = ({ bookings, showActions, showAgency }: DataTableProps) => {
     <table className="w-full min-w-max table-auto text-left">
       <thead>
         <tr>
-            <th className="border-b border-gray-300 p-4">
-                <Checkbox
-                    checked={selected.every(Boolean)}
-                    onChange={handleSelectAll} 
-                    crossOrigin={undefined}
-                />
-            </th>
+          <th className="border-b border-gray-300 p-4">
+              <Checkbox
+                checked={selected.every(Boolean)}
+                onChange={handleSelectAll} 
+                crossOrigin={undefined}
+              />
+          </th>
           {TABLE_HEAD.map(({ head }) => (
             <th key={head} className="border-b border-gray-300 p-4">
               <Typography

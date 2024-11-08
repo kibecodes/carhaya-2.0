@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import axios from 'axios';
 import { handleCancelBooking, handleDeleteBooking, handleCompleteBooking } from '../all/page';
+import { getSession } from 'next-auth/react';
 
 interface ActionsCellProps {
   booking: Booking;
@@ -51,7 +52,9 @@ const BookingActionsCell: React.FC<ActionsCellProps> = ({ booking }) => {
       try {
         setError("");
         setSuccess("");
-        const token = ""
+
+        const sessionToken = await getSession();
+        const token = sessionToken?.user.accessToken;
 
         if (token) {
           const response = await axios.post(
@@ -142,21 +145,21 @@ const BookingActionsCell: React.FC<ActionsCellProps> = ({ booking }) => {
                         />
                     </div>
                 </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outlined"
-                        color="red"
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="filled"
-                        color="green"
-                        onClick={form.handleSubmit(onSubmit)}
-                    >
-                        Re-assign
-                    </Button>
+                <DialogFooter className='flex justify-between'>
+                  <Button
+                    variant="filled"
+                    color="green"
+                    onClick={form.handleSubmit(onSubmit)}
+                  >
+                    Re-assign
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="red"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </Button>
                 </DialogFooter>
             </Dialog>
 

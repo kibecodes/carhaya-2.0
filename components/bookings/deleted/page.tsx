@@ -13,31 +13,43 @@ import { Booking } from "@/types";
 import axios from "axios"; 
 import { Alert } from "@material-tailwind/react";
 import DataTable from "../components/data-table";
-
+import { getSession } from "next-auth/react";
+import { formatDataArrayDates } from "@/utils";
+import debounce from "debounce";
 
 const DeletedTable = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState<Booking[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const fetchAllBookings = () => {
+  const fetchDeletedBookings = () => {
     try {
       startTransition(async() => {
-        const token = "YOUR_ACCESS_TOKEN_HERE"; 
-        const response = await axios.get('https://carhire.transfa.org/api/bookings/deleted', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const sessionToken = await getSession();
+        const token = sessionToken?.user.accessToken;
 
-        if (response.status === 200) {  
-          setSuccess("Bookings updated successfully!");
-          setData(response.data);
-        } else {
-          setError("Bookings update failed! Try again later.");
+        if (token) {
+          const response = await axios.get('https://carhire.transfa.org/api/bookings/deleted', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+  
+          if (response.status === 200) {  
+            setSuccess("Bookings updated successfully!");
+            let bookings = response.data;
+
+            bookings = formatDataArrayDates(bookings);
+            setData(bookings);
+          } else {
+            setError("Bookings update failed! Try again later.");
+          }
         }
+        return;
       });
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -64,7 +76,12 @@ const DeletedTable = () => {
   }
 
   useEffect(() => {
-    fetchAllBookings();
+    setIsMounted(true); 
+    fetchDeletedBookings(); 
+
+    return () => {
+      setIsMounted(false); 
+    };
   }, []);
 
   useEffect(() => {
@@ -78,27 +95,49 @@ const DeletedTable = () => {
     }
   }, [error, success]);
 
+  const debouncedSearch = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 100);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+  }
+
+  const filteredDeletedBookings = data.filter((booking) => 
+    booking.vehiclePlateNumber.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <Card className="h-full w-full overflow-scroll">
-      {isPending && <Spinner />}
-      {success && <Alert color="green">{success}</Alert>}
-      {error && <Alert color="red">{error}</Alert>}
-      <CardHeader
-        floated={false}
-        shadow={false}
-        className="mb-2 rounded-none p-2"
-      >
-        <Typography variant="h4">Deleted Bookings</Typography>
-        <div className="w-full md:w-96">
-          <Input
-            label="Search Booking"
-            icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-            crossOrigin={undefined}
-          />
+    <>
+      {!isMounted ? (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+          <Spinner />
         </div>
-      </CardHeader>
-      <DataTable bookings={data} showActions={false} showAgency={true} />
-    </Card>
+      ) : (
+        <Card className="h-full w-full overflow-scroll">
+          {isPending && <Spinner />}
+          {success && <Alert color="green">{success}</Alert>}
+          {error && <Alert color="red">{error}</Alert>}
+          <CardHeader
+            floated={false}
+            shadow={false}
+            className="mb-2 rounded-none p-2"
+          >
+            <Typography variant="h4">Deleted Bookings</Typography>
+            <div className="w-full md:w-96">
+              <Input
+                label="Search by Plate No. "
+                icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                crossOrigin={undefined}
+              />
+            </div>
+          </CardHeader>
+          <DataTable bookings={filteredDeletedBookings} showActions={false} showAgency={true} />
+        </Card>
+      )}
+    </>
   );
 }
 

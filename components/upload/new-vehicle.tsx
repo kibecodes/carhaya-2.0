@@ -271,7 +271,7 @@ const NewVehicle = () => {
             )}
 
             <Card>
-                <CardHeader color="blue">
+                <CardHeader color="blue" className="p-1">
                     <h2 className="text-white text-lg">Add New Vehicle</h2>
                     <h3 className="text-gray-400 text-sm">Fill in vehicle details and upload pictures.</h3>
                 </CardHeader>

@@ -53,7 +53,7 @@ const actionStuff: MenuItem[] = [
     submenu: [
       {
         title: "Add Vehicle",
-        url: "/upload/fleet",
+        url: "/upload/vehicle",
         icon: BookOpenIcon,
       },
       {
@@ -82,6 +82,7 @@ const vehiclesMenuData: MenuItem[] = [
     icon: ShoppingBagIcon,
     open: false,
     submenu: [
+      { title: "All Vehicles", url: "/vehicles/all", icon: ChevronRightIcon },
       { title: "Booked", url: "/vehicles/booked", icon: ChevronRightIcon },
       { title: "Active", url: "/vehicles/active", icon: ChevronRightIcon },
       { title: "Inactive", url: "/vehicles/inactive", icon: ChevronRightIcon },

@@ -8,7 +8,7 @@ const ErrorCard = () => {
     const router = useRouter();
 
     return (
-        <Card className="w-[400px] shadow-md">
+        <Card className="w-[400px] shadow-md justify-self-center">
             <CardHeader>
                 Oops! Something went wrong
             </CardHeader>
